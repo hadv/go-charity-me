@@ -11,14 +11,14 @@ import (
 
 var signingKey = []byte(viper.GetString("SIGNING_KEY"))
 
-type CharityClaims struct {
+type charityClaims struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	jwt.StandardClaims
 }
 
 func generateToken(email string, password string) (string, error) {
-	claims := CharityClaims{
+	claims := charityClaims{
 		email,
 		password,
 		jwt.StandardClaims{
