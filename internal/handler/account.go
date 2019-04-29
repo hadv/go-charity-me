@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 	"github.com/hadv/go-charity-me/internal/model"
 	"github.com/hadv/go-charity-me/internal/service"
@@ -77,4 +78,22 @@ func (a *Account) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	responseData(w, r, user)
+}
+
+func (a *Account) Logout(w http.ResponseWriter, r *http.Request) {
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		responseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	if email, ok := claims["email"].(string); ok {
+		err := a.account.Logout(r.Context(), email)
+		if err != nil {
+			responseError(w, r, http.StatusBadRequest, err.Error())
+			return
+		}
+		responseData(w, r, nil)
+	} else {
+		responseError(w, r, http.StatusBadRequest, "claims is not valid")
+	}
 }

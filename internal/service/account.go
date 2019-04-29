@@ -12,6 +12,7 @@ import (
 // AccountService account service interface
 type AccountService interface {
 	Login(ctx context.Context, email, password string) (*model.User, error)
+	Logout(ctx context.Context, email string) error
 	Register(ctx context.Context, user *model.User) (*model.User, error)
 }
 
@@ -46,6 +47,19 @@ func (a *Account) Login(ctx context.Context, email, password string) (*model.Use
 		return nil, err
 	}
 	return usr, nil
+}
+
+func (a *Account) Logout(ctx context.Context, email string) error {
+	user, err := a.repo.GetByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	user.Token = ""
+	_, err = a.repo.Update(ctx, user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Register create new account
