@@ -38,6 +38,9 @@ func responseError(w http.ResponseWriter, r *http.Request, code int, msg string)
 }
 
 func responseData(w http.ResponseWriter, r *http.Request, data interface{}) {
+	if data == nil {
+		render.NoContent(w, r)
+	}
 	err := render.Render(w, r, &Response{
 		Data: data,
 	})

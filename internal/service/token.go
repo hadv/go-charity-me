@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/spf13/viper"
@@ -22,7 +23,8 @@ func generateToken(email string, password string) (string, error) {
 		email,
 		password,
 		jwt.StandardClaims{
-			Issuer: "charity-me",
+			ExpiresAt: time.Now().Add(30 * time.Minute).Unix(),
+			Issuer:    "charity-me",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
