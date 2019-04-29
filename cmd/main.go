@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -18,6 +19,7 @@ import (
 	"github.com/hadv/go-charity-me/internal/repo"
 	"github.com/hadv/go-charity-me/internal/service"
 	"github.com/jmoiron/sqlx"
+	"github.com/sony/gobreaker"
 	"github.com/spf13/viper"
 )
 
@@ -33,6 +35,15 @@ func main() {
 			log.Printf("Error while closing DB connection: %v", err)
 		}
 	}()
+	var st gobreaker.Settings
+	st.Name = "MYSQLDB"
+	st.ReadyToTrip = func(counts gobreaker.Counts) bool {
+		failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+		return counts.Requests >= 3 && failureRatio >= 0.6
+	}
+	st.Timeout = time.Minute
+
+	cb := gobreaker.NewCircuitBreaker(st)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -70,7 +81,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
-	accountHandler := handler.NewAccount(service.NewAccount(repo.NewUser(db)))
+	accountHandler := handler.NewAccount(service.NewAccount(repo.NewUser(cb, db)))
 	r.Post("/signin", accountHandler.Login)
 	r.Put("/register", accountHandler.Register)
 
