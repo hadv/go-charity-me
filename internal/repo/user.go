@@ -13,7 +13,8 @@ import (
 type UserRepo interface {
 	Create(ctx context.Context, user *model.User) (*model.User, error)
 	Get(ctx context.Context, id string) (*model.User, error)
-	FindByEmail(ctx context.Context, email string) (*model.User, error)
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
+	FindByEmail(ctx context.Context, email string) ([]model.User, error)
 	Update(ctx context.Context, user *model.User) (*model.User, error)
 }
 
@@ -71,8 +72,8 @@ func (u *User) Get(ctx context.Context, id string) (*model.User, error) {
 	return usr.(*model.User), nil
 }
 
-// FindByEmail Get user by email
-func (u *User) FindByEmail(ctx context.Context, email string) (*model.User, error) {
+// GetByEmail Get user by email
+func (u *User) GetByEmail(ctx context.Context, email string) (*model.User, error) {
 	usr, err := u.cb.Execute(func() (interface{}, error) {
 		var user model.User
 		err := u.db.GetContext(ctx, &user, "SELECT * FROM `users` WHERE `email` = ?", email)
@@ -86,6 +87,23 @@ func (u *User) FindByEmail(ctx context.Context, email string) (*model.User, erro
 		return nil, err
 	}
 	return usr.(*model.User), nil
+}
+
+// FindByEmail list users by email
+func (u *User) FindByEmail(ctx context.Context, email string) ([]model.User, error) {
+	list, err := u.cb.Execute(func() (interface{}, error) {
+		var user []model.User
+		err := u.db.SelectContext(ctx, &user, "SELECT * FROM `users` WHERE `email` = ?", email)
+		if err != nil {
+			return nil, errors.Wrapf(err, "cannot find user with email=%s", email)
+		}
+		return user, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return list.([]model.User), nil
 }
 
 // Update update user

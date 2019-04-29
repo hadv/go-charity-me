@@ -29,7 +29,7 @@ func NewAccount(repo repo.UserRepo) *Account {
 
 // Login check account login and generate user token
 func (a *Account) Login(ctx context.Context, email, password string) (*model.User, error) {
-	user, err := a.repo.FindByEmail(ctx, email)
+	user, err := a.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +50,13 @@ func (a *Account) Login(ctx context.Context, email, password string) (*model.Use
 
 // Register create new account
 func (a *Account) Register(ctx context.Context, user *model.User) (*model.User, error) {
+	users, err := a.repo.FindByEmail(ctx, user.Email)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) > 0 {
+		return nil, errors.New("email is already registered")
+	}
 	if user.Password != user.ConfirmPassword {
 		return nil, errors.New("password and confirm password are not matched")
 	}
@@ -61,7 +68,7 @@ func (a *Account) Register(ctx context.Context, user *model.User) (*model.User, 
 		Password:  hashAndSalt([]byte(user.Password)),
 	}
 
-	user, err := a.repo.Create(ctx, usr)
+	user, err = a.repo.Create(ctx, usr)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot register new user")
 	}
