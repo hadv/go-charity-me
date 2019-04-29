@@ -26,7 +26,7 @@ func NewAccount(repo repo.UserRepo) *Account {
 }
 
 func (a *Account) Login(ctx context.Context, email, password string) (*model.User, error) {
-	user, err := a.repo.FindByEmail(ctx, email)
+	user, err := a.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -38,10 +38,11 @@ func (a *Account) Login(ctx context.Context, email, password string) (*model.Use
 		return nil, err
 	}
 	user.Token = token
-	if err = a.repo.Update(ctx, user); err != nil {
+	usr, err := a.repo.Update(ctx, user)
+	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return usr, nil
 }
 
 func (a *Account) Register(ctx context.Context, user *model.User) (*model.User, error) {
@@ -56,12 +57,9 @@ func (a *Account) Register(ctx context.Context, user *model.User) (*model.User, 
 		Password:  hashAndSalt([]byte(user.Password)),
 	}
 
-	if err := a.repo.Create(ctx, usr); err != nil {
-		return nil, errors.Wrap(err, "cannot register new user")
+	user, err := a.repo.Create(ctx, usr)
+	if err != nil {
+		return nil, err
 	}
-
-	if usr, err := a.repo.Get(ctx, usr.ID); err != nil {
-		return nil, errors.Wrapf(err, "cannot get user by id=%s", usr.ID)
-	}
-	return usr, nil
+	return user, nil
 }

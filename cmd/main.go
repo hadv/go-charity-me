@@ -70,7 +70,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
-	accountHandler := handler.NewAccount(service.NewAccount(repo.NewUser(db)))
+	accountHandler := handler.NewAccount(service.NewAccount(&repo.CircuitBreakerUser{User: repo.NewUser(db)}))
 	r.Post("/signin", accountHandler.Login)
 	r.Put("/register", accountHandler.Register)
 
