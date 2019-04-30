@@ -94,6 +94,6 @@ func (a *Account) Logout(w http.ResponseWriter, r *http.Request) {
 		}
 		responseData(w, r, nil)
 	} else {
-		responseError(w, r, http.StatusBadRequest, "claims is not valid")
+		responseError(w, r, http.StatusUnauthorized, "authorization token not found or invalid")
 	}
 }

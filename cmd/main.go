@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -87,7 +86,15 @@ func main() {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(30 * time.Second))
+	r.Use(middleware.ThrottleBacklog(50, 100, 5*time.Second))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
+	r.Use(middleware.Heartbeat("/ping"))
+
+	r.Mount("/debug", middleware.Profiler())
+
 	accountHandler := handler.NewAccount(service.NewAccount(repo.NewUser(cb, db)))
 	r.Post("/signin", accountHandler.Login)
 	r.Put("/register", accountHandler.Register)
@@ -103,9 +110,6 @@ func main() {
 		Addr:    ":8080",
 		Handler: r,
 	}
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
