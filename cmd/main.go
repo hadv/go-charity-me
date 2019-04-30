@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/hadv/go-charity-me/internal/handler"
+	charity "github.com/hadv/go-charity-me/internal/middleware"
 	"github.com/hadv/go-charity-me/internal/repo"
 	"github.com/hadv/go-charity-me/internal/service"
 	"github.com/jmoiron/sqlx"
@@ -95,13 +96,15 @@ func main() {
 
 	r.Mount("/debug", middleware.Profiler())
 
-	accountHandler := handler.NewAccount(service.NewAccount(repo.NewUser(cb, db)))
+	userRepo := repo.NewUser(cb, db)
+	accountHandler := handler.NewAccount(service.NewAccount(userRepo))
 	r.Post("/signin", accountHandler.Login)
 	r.Put("/register", accountHandler.Register)
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))
 		r.Use(jwtauth.Authenticator)
+		r.Use(charity.Verifier(userRepo))
 
 		r.Post("/signout", accountHandler.Logout)
 	})
