@@ -3,6 +3,8 @@ module github.com/hadv/go-charity-me
 go 1.12
 
 require (
+	github.com/dchest/authcookie v0.0.0-20120917135355-fbdef6e99866 // indirect
+	github.com/dchest/passwordreset v0.0.0-20120723102225-642cf836ac8d
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-chi/cors v1.0.0
