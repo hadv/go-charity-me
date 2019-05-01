@@ -9,27 +9,6 @@ import (
 	"github.com/hadv/go-charity-me/internal/service"
 )
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func (l *LoginRequest) Bind(r *http.Request) error {
-	return nil
-}
-
-type RegisterRequest struct {
-	Firstname       string `json:"firstname"`
-	Lastname        string `json:"lastname"`
-	Email           string `json:"email"`
-	Password        string `json:"password"`
-	ConfirmPassword string `json:"confirmPassword"`
-}
-
-func (l *RegisterRequest) Bind(r *http.Request) error {
-	return nil
-}
-
 // Account handler all http request related to account
 type Account struct {
 	account service.AccountService
