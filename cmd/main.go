@@ -101,6 +101,7 @@ func main() {
 	accountHandler := handler.NewAccount(service.NewAccount(userRepo))
 	r.Post("/signin", accountHandler.Login)
 	r.Put("/register", accountHandler.Register)
+	r.Post("/forgot-password", accountHandler.ForgotPassword)
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))

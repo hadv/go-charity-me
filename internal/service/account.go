@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"time"
 
+	"github.com/dchest/passwordreset"
 	"github.com/google/uuid"
 	"github.com/hadv/go-charity-me/internal/model"
 	"github.com/hadv/go-charity-me/internal/repo"
@@ -14,6 +16,7 @@ type AccountService interface {
 	Login(ctx context.Context, email, password string) (*model.User, error)
 	Logout(ctx context.Context, email string) error
 	Register(ctx context.Context, user *model.User) (*model.User, error)
+	PasswordResetToken(ctx context.Context, email string) (string, error)
 }
 
 // Account service
@@ -60,6 +63,24 @@ func (a *Account) Logout(ctx context.Context, email string) error {
 		return err
 	}
 	return nil
+}
+
+func (a *Account) getPasswordHash(email string) ([]byte, error) {
+	user, err := a.repo.GetByEmail(context.Background(), email)
+	if err != nil {
+		return nil, err
+	}
+	return []byte(user.Password), nil
+}
+
+func (a *Account) PasswordResetToken(ctx context.Context, email string) (string, error) {
+	pwdval, err := a.getPasswordHash(email)
+	if err != nil {
+		return "", err
+	}
+	token := passwordreset.NewToken(email, 24*time.Hour, pwdval, signingKey)
+
+	return token, nil
 }
 
 // Register create new account

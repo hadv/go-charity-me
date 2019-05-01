@@ -76,3 +76,17 @@ func (a *Account) Logout(w http.ResponseWriter, r *http.Request) {
 		responseError(w, r, http.StatusUnauthorized, "authorization token not found or invalid")
 	}
 }
+
+func (a *Account) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	forgot := &ForgotPasswordRequest{}
+	if err := render.Bind(r, forgot); err != nil {
+		responseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err := a.account.PasswordResetToken(r.Context(), forgot.Email)
+	if err != nil {
+		responseError(w, r, http.StatusNotFound, err.Error())
+		return
+	}
+	responseData(w, r, nil)
+}
