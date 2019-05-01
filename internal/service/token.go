@@ -6,11 +6,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var signingKey = []byte(viper.GetString("SIGNING_KEY"))
 
 type charityClaims struct {
 	Email    string `json:"email"`

@@ -12,7 +12,7 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-func (l *LoginRequest) Bind(r *http.Request) error {
+func (h *LoginRequest) Bind(r *http.Request) error {
 	return nil
 }
 
@@ -24,7 +24,15 @@ type RegisterRequest struct {
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
-func (l *RegisterRequest) Bind(r *http.Request) error {
+func (h *RegisterRequest) Bind(r *http.Request) error {
+	return nil
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+func (h *ForgotPasswordRequest) Bind(r *http.Request) error {
 	return nil
 }
 
