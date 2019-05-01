@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -27,7 +28,7 @@ import (
 var tokenAuth *jwtauth.JWTAuth
 
 func init() {
-	tokenAuth = jwtauth.New("HS256", []byte(viper.GetString("SIGNING_KEY")), nil)
+	tokenAuth = jwtauth.New(jwt.SigningMethodHS256.Alg(), []byte(viper.GetString("SIGNING_KEY")), nil)
 }
 
 func main() {
