@@ -15,7 +15,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/pkg/errors v0.8.1
 	github.com/sendgrid/rest v2.4.1+incompatible // indirect
-	github.com/sendgrid/sendgrid-go v3.4.1+incompatible
+	github.com/sendgrid/sendgrid-go v3.4.2-0.20190404232524-df2105ec04e3+incompatible
 	github.com/sony/gobreaker v0.0.0-20190329013020-a9b2a3fc7395
 	github.com/spf13/viper v1.3.2
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
