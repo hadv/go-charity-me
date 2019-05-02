@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dchest/passwordreset"
@@ -80,12 +79,8 @@ func (a *Account) PasswordResetToken(ctx context.Context, email string) (string,
 		return "", err
 	}
 	token := passwordreset.NewToken(email, 24*time.Hour, []byte(user.Password), signingKey)
-	subject := "[Charity Me] Reset Password confirmation"
-	plainTextContent := "Please click below link to reset your password: " + token
-	htmlContent := fmt.Sprintf(`
-		<strong>Please click below link to reset your password: </strong>
-		<a href="http://localhost:8081/reset-password?token=%s">Reset Password</a>`, token)
-	go sendMail(user, subject, plainTextContent, htmlContent)
+
+	go sendMail("d-1036306a05ee4829a6799879ec19051c", []interface{}{user, token}, createForgotPasswordEmailFromTemplate)
 	return token, nil
 }
 
