@@ -90,3 +90,17 @@ func (a *Account) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	responseData(w, r, nil)
 }
+
+func (a *Account) VerifyPasswordResetToken(w http.ResponseWriter, r *http.Request) {
+	reset := &PasswordResetTokenRequest{}
+	if err := render.Bind(r, reset); err != nil {
+		responseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	email, err := a.account.VerifyToken(r.Context(), reset.Token)
+	if err != nil {
+		responseError(w, r, http.StatusNotFound, err.Error())
+		return
+	}
+	responseData(w, r, email)
+}
