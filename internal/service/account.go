@@ -17,6 +17,7 @@ type AccountService interface {
 	Logout(ctx context.Context, email string) error
 	Register(ctx context.Context, user *model.User) (*model.User, error)
 	PasswordResetToken(ctx context.Context, email string) (string, error)
+	VerifyToken(ctx context.Context, token string) (string, error)
 }
 
 // Account service
@@ -82,6 +83,14 @@ func (a *Account) PasswordResetToken(ctx context.Context, email string) (string,
 
 	go sendMail("d-1036306a05ee4829a6799879ec19051c", []interface{}{user, token}, createForgotPasswordEmailFromTemplate)
 	return token, nil
+}
+
+func (a *Account) VerifyToken(ctx context.Context, token string) (string, error) {
+	email, err := passwordreset.VerifyToken(token, a.getPasswordHash, signingKey)
+	if err != nil {
+		return "", err
+	}
+	return email, nil
 }
 
 // Register create new account
