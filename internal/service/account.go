@@ -18,6 +18,7 @@ type AccountService interface {
 	Register(ctx context.Context, user *model.User) (*model.User, error)
 	PasswordResetToken(ctx context.Context, email string) (string, error)
 	VerifyToken(ctx context.Context, token string) (string, error)
+	ResetPassword(ctx context.Context, token, password string) (*model.User, error)
 }
 
 // Account service
@@ -91,6 +92,24 @@ func (a *Account) VerifyToken(ctx context.Context, token string) (string, error)
 		return "", err
 	}
 	return email, nil
+}
+
+func (a *Account) ResetPassword(ctx context.Context, token, password string) (*model.User, error) {
+	email, err := passwordreset.VerifyToken(token, a.getPasswordHash, signingKey)
+	if err != nil {
+		return nil, errors.Wrap(err, "token is invalid or expired")
+	}
+	var user *model.User
+	user, err = a.repo.GetByEmail(context.Background(), email)
+	if err != nil {
+		return nil, errors.Wrap(err, "user does not exist")
+	}
+	user.Password = hashAndSalt([]byte(password))
+	usr, err := a.repo.Update(ctx, user)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot change user password")
+	}
+	return usr, nil
 }
 
 // Register create new account

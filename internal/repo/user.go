@@ -109,8 +109,8 @@ func (u *User) FindByEmail(ctx context.Context, email string) ([]model.User, err
 // Update update user
 func (u *User) Update(ctx context.Context, user *model.User) (*model.User, error) {
 	usr, err := u.cb.Execute(func() (interface{}, error) {
-		_, err := u.db.ExecContext(ctx, "UPDATE `users` SET `firstname`=?, `lastname`=?, `email`=?, `token`=? WHERE `id`=?",
-			user.Firstname, user.Lastname, user.Email, user.Token, user.ID)
+		_, err := u.db.ExecContext(ctx, "UPDATE `users` SET `firstname`=?, `lastname`=?, `email`=?, `password`=?, `token`=? WHERE `id`=?",
+			user.Firstname, user.Lastname, user.Email, user.Password, user.Token, user.ID)
 		if err != nil {
 			return nil, errors.Wrap(err, "cannot update user")
 		}

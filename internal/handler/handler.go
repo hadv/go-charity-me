@@ -36,6 +36,15 @@ func (h *ForgotPasswordRequest) Bind(r *http.Request) error {
 	return nil
 }
 
+type ResetPasswordRequest struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}
+
+func (h *ResetPasswordRequest) Bind(r *http.Request) error {
+	return nil
+}
+
 type PasswordResetTokenRequest struct {
 	Token string `json:"token"`
 }
