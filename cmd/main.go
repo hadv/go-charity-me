@@ -104,6 +104,7 @@ func main() {
 	r.Post("/forgot-password", accountHandler.ForgotPassword)
 	r.Post("/reset-password", accountHandler.ResetPassword)
 	r.Post("/verify-token", accountHandler.VerifyPasswordResetToken)
+	r.Post("/verify-email", accountHandler.VerifyEmailToken)
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))
