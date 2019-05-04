@@ -18,6 +18,7 @@ type AccountService interface {
 	Register(ctx context.Context, user *model.User) (*model.User, error)
 	PasswordResetToken(ctx context.Context, email string) (string, error)
 	VerifyToken(ctx context.Context, token string) (string, error)
+	VerifyEmailToken(ctx context.Context, token string) (*model.User, error)
 	ResetPassword(ctx context.Context, token, password string) (*model.User, error)
 }
 
@@ -35,9 +36,13 @@ func NewAccount(repo repo.UserRepo) *Account {
 
 // Login check account login and generate user token
 func (a *Account) Login(ctx context.Context, email, password string) (*model.User, error) {
+	var user *model.User
 	user, err := a.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
+	}
+	if !user.EmailVerification {
+		return nil, errors.New("unverified account")
 	}
 	if !comparePasswords(user.Password, []byte(password)) {
 		return nil, errors.New("passwords are not match")
@@ -94,6 +99,23 @@ func (a *Account) VerifyToken(ctx context.Context, token string) (string, error)
 	return email, nil
 }
 
+func (a *Account) VerifyEmailToken(ctx context.Context, token string) (*model.User, error) {
+	email, err := passwordreset.VerifyToken(token, a.getPasswordHash, signingKey)
+	if err != nil {
+		return nil, err
+	}
+	user, err := a.repo.GetByEmail(context.Background(), email)
+	if err != nil {
+		return nil, err
+	}
+	user.EmailVerification = true
+	usr, err := a.repo.Update(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	return usr, nil
+}
+
 func (a *Account) ResetPassword(ctx context.Context, token, password string) (*model.User, error) {
 	email, err := passwordreset.VerifyToken(token, a.getPasswordHash, signingKey)
 	if err != nil {
@@ -136,6 +158,8 @@ func (a *Account) Register(ctx context.Context, user *model.User) (*model.User, 
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot register new user")
 	}
+	token := passwordreset.NewToken(user.Email, 48*time.Hour, []byte(user.Password), signingKey)
+	go sendMail("d-c2d8108d7529490889ec91151b4471db", []interface{}{user, token}, createVerifyEmailFromTemplate)
 
 	return user, nil
 }

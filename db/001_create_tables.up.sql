@@ -3,6 +3,7 @@ CREATE TABLE `users` (
   `firstname` VARCHAR(100),
   `lastname` VARCHAR(100),
   `email` VARCHAR(40) NOT NULL,
+  `email_verification` BOOLEAN NOT NULL DEFAULT 0,
   `password` VARCHAR(256) NOT NULL,
   `token` VARCHAR(1024),
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

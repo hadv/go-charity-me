@@ -41,3 +41,21 @@ func createForgotPasswordEmailFromTemplate(template string, data []interface{}) 
 	email.AddPersonalizations(persona)
 	return mail.GetRequestBody(email)
 }
+
+func createVerifyEmailFromTemplate(template string, data []interface{}) []byte {
+	email := mail.NewV3Mail()
+	from := mail.NewEmail("Charity Me", "noreply@charity.me")
+	email.SetFrom(from)
+
+	email.SetTemplateID(template)
+	persona := mail.NewPersonalization()
+	user := data[0].(*model.User)
+	token := data[1].(string)
+	tos := []*mail.Email{
+		mail.NewEmail(user.Firstname+" "+user.Lastname, user.Email),
+	}
+	persona.AddTos(tos...)
+	persona.SetDynamicTemplateData("verify_email_url", fmt.Sprintf("http://localhost:8081/verify-email?token=%s", token))
+	email.AddPersonalizations(persona)
+	return mail.GetRequestBody(email)
+}

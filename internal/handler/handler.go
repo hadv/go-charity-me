@@ -53,6 +53,14 @@ func (h *PasswordResetTokenRequest) Bind(r *http.Request) error {
 	return nil
 }
 
+type VerifyEmailTokenRequest struct {
+	Token string `json:"token"`
+}
+
+func (h *VerifyEmailTokenRequest) Bind(r *http.Request) error {
+	return nil
+}
+
 // Response general json api response
 type Response struct {
 	Error *ErrorResponse `json:"error,omitempty"`

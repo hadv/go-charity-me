@@ -118,3 +118,17 @@ func (a *Account) VerifyPasswordResetToken(w http.ResponseWriter, r *http.Reques
 	}
 	responseData(w, r, email)
 }
+
+func (a *Account) VerifyEmailToken(w http.ResponseWriter, r *http.Request) {
+	verify := &VerifyEmailTokenRequest{}
+	if err := render.Bind(r, verify); err != nil {
+		responseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	user, err := a.account.VerifyEmailToken(r.Context(), verify.Token)
+	if err != nil {
+		responseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	responseData(w, r, user)
+}
