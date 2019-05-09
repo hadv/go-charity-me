@@ -19,6 +19,8 @@ require (
 	github.com/sendgrid/sendgrid-go v3.4.2-0.20190404232524-df2105ec04e3+incompatible
 	github.com/sony/gobreaker v0.0.0-20190329013020-a9b2a3fc7395
 	github.com/spf13/viper v1.3.2
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/net v0.0.0-20190502183928-7f726cade0ab // indirect
 	google.golang.org/appengine v1.5.0 // indirect
