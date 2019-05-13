@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./build/package/Dockerfile
+    restart: always
+    ports:
+      - 8080
+    depends_on:
+      - db
+    environment:
+      - DB_URL=root:password@tcp(db:3306)/charityme?parseTime=true
+      - SIGNING_KEY=charity-me
+      - SENDGRID_API_KEY=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
+  web_migrate:
+    build:
+      context: .
+      dockerfile: ./build/package/Dockerfile
+    restart: always
+    command: /bin/waitforit -address tcp://db:3306 -- /bin/migrate.linux-amd64 -verbose -path /db -database mysql://root:password@tcp(db)/charityme?parseTime=true up
+  db:
+    image: mysql:5.7.26
+    restart: always
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=charityme
+    ports:
+      - 3306
